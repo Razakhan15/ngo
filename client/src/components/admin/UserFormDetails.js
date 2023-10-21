@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "../../baseUrl/axios";
 
 const UserFormDetails = () => {
@@ -35,6 +35,7 @@ const UserFormDetails = () => {
                 <th className="w-20 pr-5">Up time</th>
                 <th className="w-20 pr-5">Bed time</th>
                 <th className="w-20 pr-5">Date</th>
+                <th className="w-20 pr-5">Edit</th>
               </tr>
               {details?.map((items) => {
                 return (
@@ -48,6 +49,14 @@ const UserFormDetails = () => {
                     <td className="text-center">{items.up_time}</td>
                     <td className="text-center">{items.bet_time}</td>
                     <td className="text-center">{items.submit_date}</td>
+                    
+                  <td className="text-center">
+                    <Link to={"/edit/user/detail/" + items.id}>
+                      <button className="bg-gray-600 p-2 font-bold  text-white rounded-md transition delay-100 hover:bg-gray-800">
+                        Edit
+                      </button>
+                    </Link>
+                  </td>
                   </tr>
                 );
               })}

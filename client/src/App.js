@@ -10,6 +10,7 @@ import Panel from "./components/admin/Panel";
 import UserFormDetails from "./components/admin/UserFormDetails";
 import ForgotPass from "./components/ForgotPass";
 import AdminForgPass from "./components/admin/AdminForgPass";
+import EditUser from "./components/admin/EditUser";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/ngo/admin/login" element={<AdminLogin />} />
         <Route path="/adminpanel" element={<Panel />} />
         <Route path="/details/user/:id" element={<UserFormDetails />} />
+        <Route path="/edit/user/detail/:id" element={<EditUser />} />
         <Route path="/user/forgot-password" element={<ForgotPass />} />
         <Route path="/ngo/admin/forgot-password" element={<AdminForgPass />} />
       </Routes>

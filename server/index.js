@@ -71,7 +71,6 @@ app.post("/register", (req, res) => {
       if (Object.keys(registerErrors).length > 0) {
         // There are validation errors; send a single response with all error messages
         res.status(400).json(registerErrors);
-        console.log(registerErrors);
         registerErrors = {};
       } else {
         // if not converted to string it throws error
@@ -185,7 +184,6 @@ app.post("/admin/register", (req, res) => {
       if (Object.keys(registerErrors).length > 0) {
         // There are validation errors; send a single response with all error messages
         res.status(400).json(registerErrors);
-        console.log(registerErrors);
         registerErrors = {};
       } else {
         // if not converted to string it throws error
@@ -293,7 +291,6 @@ app.post("/reset-password", async (req, res) => {
     ]);
     res.json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error(error);
     res.status(400).json({ error: "Failed to change password" });
   }
 });
@@ -325,7 +322,6 @@ app.post("/admin/reset-password", async (req, res) => {
     ]);
     res.json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error(error);
     res.status(400).json({ error: "Failed to change password" });
   }
 });
@@ -342,8 +338,21 @@ app.get("/getAllUsers", verifyJwt, (req, res) => {
 
 app.get("/getUser/:id", (req, res) => {
   const id = req.params.id;
-  console.log(id);
   const sql = "SELECT * FROM  details WHERE sno = ?";
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Error fetching user data" });
+    }
+    if (results.length > 0) {
+      return res.json({ results });
+    } else {
+      return res.json({ message: "NO DATA SUBMITTED YET" });
+    }
+  });
+});
+app.get("/getUser/details/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = "SELECT * FROM  details WHERE id = ?";
   db.query(sql, [id], (err, results) => {
     if (err) {
       return res.status(500).json({ error: "Error fetching user data" });
@@ -397,19 +406,18 @@ app.post("/postform", (req, res) => {
     userId,
     submit_date,
   } = req.body;
-  if (hrUp < 10) {
+  if (hrUp > 0 && hrUp < 10) {
     hrUp = "0" + hrUp;
   }
-  if (minUp < 10) {
+  if (minUp > 0 && minUp < 10) {
     minUp = "0" + minUp;
   }
-  if (hrbed < 10) {
+  if (hrbed > 0 && hrbed < 10) {
     hrbed = "0" + hrbed;
   }
-  if (minbed < 10) {
+  if (minbed > 0 && minbed < 10) {
     minbed = "0" + minbed;
   }
-  console.log(submit_date)
   const up = hrUp + ":" + minUp + " " + typeUp;
   const bed = hrbed + ":" + minbed + " " + typebed;
   const formval = {
@@ -440,11 +448,78 @@ app.post("/postform", (req, res) => {
   ];
   db.query(sql, values, (err) => {
     if (err) {
-      console.log(err);
       return res.status(500).json({ error: "Error Subbmiting the form" + err });
     }
     res.json({ message: "Form Subbmited Successfully" });
   });
+});
+
+// API endpoint to update user details
+app.put("/edit/user/:id", (req, res) => {
+  const detailId = req.params.id;
+  console.log(detailId);
+  let {
+    chant_rounds,
+    service,
+    hear_lecs,
+    read_books,
+    attend_session,
+    attend_game,
+    hrUp,
+    minUp,
+    typeUp,
+    hrbed,
+    minbed,
+    typebed,
+  } = req.body;
+  if (hrUp > 0 && hrUp < 10) {
+    hrUp = "0" + hrUp;
+  }
+  if (minUp > 0 && minUp < 10) {
+    minUp = "0" + minUp;
+  }
+  if (hrbed > 0 && hrbed < 10) {
+    hrbed = "0" + hrbed;
+  }
+  if (minbed > 0 && minbed < 10) {
+    minbed = "0" + minbed;
+  }
+  const up_time = hrUp + ":" + minUp + " " + typeUp;
+  const bet_time = hrbed + ":" + minbed + " " + typebed;
+
+  const formval = {
+    chant_rounds,
+    service,
+    hear_lecs,
+    read_books,
+    attend_session,
+    attend_game,
+    up_time,
+    bet_time,
+  };
+
+  db.query(
+    "UPDATE details SET chant_rounds = ?, service = ?, hear_lecs  = ?, read_books = ?, attend_session = ?, attend_game = ?, up_time = ?, bet_time = ? WHERE id = ?",
+    [
+      formval.chant_rounds,
+      formval.service,
+      formval.hear_lecs,
+      formval.read_books,
+      formval.attend_session,
+      formval.attend_game,
+      formval.up_time,
+      formval.bet_time,
+      detailId,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error updating user details" + err);
+      } else {
+        res.send("User details updated successfully");
+      }
+    }
+  );
 });
 
 app.listen(port, () => {

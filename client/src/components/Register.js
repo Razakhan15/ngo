@@ -26,7 +26,7 @@ const Register = () => {
 
   const postData = async () => {
     try {
-      await axios.post("/register ", formValues);
+      await axios.post("/register", formValues);
       nav("/user/login");
     } catch (error) {
       setFormErrors(error.response.data);

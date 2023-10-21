@@ -41,8 +41,8 @@ const Panel = () => {
                   <td className="text-center">{items.phone}</td>
                   <td className="text-center">
                     <Link to={"/details/user/" + items.sno}>
-                      <button className="bg-cyan-600 p-2 font-bold  text-white rounded-md">
-                        view
+                      <button className="bg-cyan-600 p-2 font-bold  text-white rounded-md transition delay-100 hover:bg-cyan-800">
+                        View
                       </button>
                     </Link>
                   </td>
