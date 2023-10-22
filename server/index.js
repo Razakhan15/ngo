@@ -285,7 +285,7 @@ app.post("/reset-password", async (req, res) => {
     // Update the user's password in the database
     const hashedPassword = await bcrypt.hash(pass, 10);
     // Replace 'user123' with the actual user ID from the decoded token
-    await db.query("UPDATE users SET password = ? WHERE sno = ?", [
+    db.query("UPDATE users SET password = ? WHERE sno = ?", [
       hashedPassword,
       id,
     ]);
@@ -316,7 +316,7 @@ app.post("/admin/reset-password", async (req, res) => {
     // Update the user's password in the database
     const hashedPassword = await bcrypt.hash(pass, 10);
     // Replace 'user123' with the actual user ID from the decoded token
-    await db.query("UPDATE admin SET password = ? WHERE sno = ?", [
+    db.query("UPDATE admin SET password = ? WHERE sno = ?", [
       hashedPassword,
       id,
     ]);
@@ -393,8 +393,10 @@ app.post("/postform", (req, res) => {
   let {
     rounds,
     service,
-    lecs,
-    read,
+    speaker,
+    hear_time,
+    author,
+    read_time,
     attend,
     game,
     hrUp,
@@ -406,16 +408,16 @@ app.post("/postform", (req, res) => {
     userId,
     submit_date,
   } = req.body;
-  if (hrUp > 0 && hrUp < 10) {
+  if (hrUp >= 0 && hrUp < 10) {
     hrUp = "0" + hrUp;
   }
-  if (minUp > 0 && minUp < 10) {
+  if (minUp >= 0 && minUp < 10) {
     minUp = "0" + minUp;
   }
-  if (hrbed > 0 && hrbed < 10) {
+  if (hrbed >= 0 && hrbed < 10) {
     hrbed = "0" + hrbed;
   }
-  if (minbed > 0 && minbed < 10) {
+  if (minbed >= 0 && minbed < 10) {
     minbed = "0" + minbed;
   }
   const up = hrUp + ":" + minUp + " " + typeUp;
@@ -424,8 +426,10 @@ app.post("/postform", (req, res) => {
     userId,
     rounds,
     service,
-    lecs,
-    read,
+    speaker,
+    hear_time,
+    author,
+    read_time,
     attend,
     game,
     up,
@@ -433,13 +437,15 @@ app.post("/postform", (req, res) => {
     submit_date,
   };
   const sql =
-    "INSERT INTO `details` (`sno`, `chant_rounds`, `service`, `hear_lecs`, `read_books`, `attend_session`, `attend_game`, `up_time`, `bet_time`, `submit_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+    "INSERT INTO `details` (`sno`, `chant_rounds`, `service`, `speaker`, `hear_time`, `author`, `read_time`, `attend_session`, `attend_game`, `up_time`, `bet_time`, `submit_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
   const values = [
     formval.userId,
     formval.rounds,
     formval.service,
-    formval.lecs,
-    formval.read,
+    formval.speaker,
+    formval.hear_time,
+    formval.author,
+    formval.read_time,
     formval.attend,
     formval.game,
     formval.up,
@@ -457,12 +463,13 @@ app.post("/postform", (req, res) => {
 // API endpoint to update user details
 app.put("/edit/user/:id", (req, res) => {
   const detailId = req.params.id;
-  console.log(detailId);
   let {
     chant_rounds,
     service,
-    hear_lecs,
-    read_books,
+    speaker,
+    hear_time,
+    author,
+    read_time,
     attend_session,
     attend_game,
     hrUp,
@@ -472,26 +479,17 @@ app.put("/edit/user/:id", (req, res) => {
     minbed,
     typebed,
   } = req.body;
-  if (hrUp > 0 && hrUp < 10) {
-    hrUp = "0" + hrUp;
-  }
-  if (minUp > 0 && minUp < 10) {
-    minUp = "0" + minUp;
-  }
-  if (hrbed > 0 && hrbed < 10) {
-    hrbed = "0" + hrbed;
-  }
-  if (minbed > 0 && minbed < 10) {
-    minbed = "0" + minbed;
-  }
+
   const up_time = hrUp + ":" + minUp + " " + typeUp;
   const bet_time = hrbed + ":" + minbed + " " + typebed;
 
   const formval = {
     chant_rounds,
     service,
-    hear_lecs,
-    read_books,
+    speaker,
+    hear_time,
+    author,
+    read_time,
     attend_session,
     attend_game,
     up_time,
@@ -499,12 +497,14 @@ app.put("/edit/user/:id", (req, res) => {
   };
 
   db.query(
-    "UPDATE details SET chant_rounds = ?, service = ?, hear_lecs  = ?, read_books = ?, attend_session = ?, attend_game = ?, up_time = ?, bet_time = ? WHERE id = ?",
+    "UPDATE details SET chant_rounds = ?, service = ?, speaker  = ?, hear_time= ?, author = ?, read_time = ?, attend_session = ?, attend_game = ?, up_time = ?, bet_time = ? WHERE id = ?",
     [
       formval.chant_rounds,
       formval.service,
-      formval.hear_lecs,
-      formval.read_books,
+      formval.speaker,
+      formval.hear_time,
+      formval.author,
+      formval.read_time,
       formval.attend_session,
       formval.attend_game,
       formval.up_time,
@@ -520,6 +520,47 @@ app.put("/edit/user/:id", (req, res) => {
       }
     }
   );
+});
+
+app.post("/postnotes", (req, res) => {
+  const { note } = req.body;
+  const formval = { note };
+  console.log(formval);
+  const sql = "INSERT INTO `notes` (`note`) VALUES (?)";
+  db.query(sql, [formval.note], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error updating user details" + err);
+    } else {
+      res.send("User details updated successfully");
+    }
+  });
+});
+
+app.get("/getnotes", (req, res) => {
+  const sql = "SELECT * FROM notes";
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error updating user details" + err);
+    } else {
+      res.json({ result });
+    }
+  });
+});
+
+app.delete("/deletenote/:id", (req, res) => {
+  const itemId = req.params.id;
+
+  const query = "DELETE FROM notes WHERE id = ?";
+
+  db.query(query, [itemId], (error, results) => {
+    if (error) {
+      res.status(500).send("Error deleting item");
+    } else {
+      res.status(200).send("Item deleted successfully");
+    }
+  });
 });
 
 app.listen(port, () => {

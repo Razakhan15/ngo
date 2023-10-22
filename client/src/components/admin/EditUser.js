@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import dayjs from "dayjs";
+import { TimePicker } from "antd";
 
 const EditUser = () => {
   const nav = useNavigate();
@@ -8,8 +10,16 @@ const EditUser = () => {
   const [userDetails, setUserDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [initialValues, setInitialValues] = useState({});
-
+  const [isFocused, setIsFocused] = useState();
+  const [isFocused2, setIsFocused2] = useState();
+  const [error1, setError1] = useState(null);
+  const [error2, setError2] = useState(null);
+  const [readingTime, setReadingTime] = useState(null);
+  const [hearingTime, setHearingTime] = useState(null);
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      nav("/ngo/admin/login");
+    }
     handleUser();
   }, []);
 
@@ -25,14 +35,24 @@ const EditUser = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    initialValues.sno = id;
+    initialValues.hear_time = hearingTime;
+    initialValues.read_time = readingTime;
     setInitialValues({ ...initialValues, [name]: value });
     console.log(initialValues);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    postData();
+    if (!readingTime) {
+      setError1("Please select a time.");
+    } else if (!hearingTime) {
+      setError1(null);
+      setError2("Please select a time.");
+    } else {
+      setError1(null);
+      setError2(null);
+      postData();
+    }
   };
 
   const postData = async () => {
@@ -44,13 +64,29 @@ const EditUser = () => {
     }
   };
 
+  const handleTimeChange1 = (time, timeString) => {
+    setReadingTime(timeString);
+  };
+  const handleTimeChange2 = (time, timeString) => {
+    setHearingTime(timeString);
+  };
+
+  const handleInputBlur1 = (id) => {
+    setIsFocused(id);
+  };
+  const handleInputBlur2 = (id) => {
+    setIsFocused2(id);
+  };
+
   useEffect(() => {
     if (userDetails.length > 0) {
       const initialVal = {
         chant_rounds: userDetails[0]?.chant_rounds || "",
         service: userDetails[0]?.service || "",
-        hear_lecs: userDetails[0]?.hear_lecs || "",
-        read_books: userDetails[0]?.read_books || "",
+        speaker: userDetails[0]?.speaker || "",
+        hear_time: userDetails[0]?.hear_time || "",
+        author: userDetails[0]?.author || "",
+        read_time: userDetails[0]?.read_time || "",
         attend_session: userDetails[0]?.attend_session || "",
         attend_game: userDetails[0]?.attend_game || "",
         hrUp: userDetails[0]?.up_time.split(/[ :]+/)[0] || "",
@@ -63,6 +99,10 @@ const EditUser = () => {
         submit_date: userDetails[0]?.submit_date || "",
       };
       setInitialValues(initialVal);
+      setIsFocused(userDetails[0]?.attend_session);
+      setIsFocused2(userDetails[0]?.attend_game);
+      setReadingTime(userDetails[0]?.read_time);
+      setHearingTime(userDetails[0]?.hear_time);
     }
   }, [userDetails]);
 
@@ -75,7 +115,7 @@ const EditUser = () => {
         userDetails?.map((item) => (
           <div
             key={item.id}
-            className="w-fit m-auto border-gray-200 border mt-14 shadow-2xl shadow-cyan-400 rounded-lg"
+            className="w-fit xl:w-3/5 m-auto border-gray-200 border mt-14 shadow-2xl shadow-cyan-400 rounded-lg"
           >
             <form
               onSubmit={handleSubmit}
@@ -115,59 +155,57 @@ const EditUser = () => {
               <div className="flex justify-evenly gap-5 flex-col sm:flex-row">
                 <div className="sm:w-1/2 space-y-2">
                   <label className="text-sm font-bold ">Hearing Lecture</label>
-                  <div className="flex items-center gap-10">
+                  <div className="flex items-center gap-2">
                     <div>
-                      <input
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="hear_lecs"
-                        value="yes"
-                        defaultChecked={item.hear_lecs === "yes"}
-                        required
+                      <TimePicker
+                        defaultValue={dayjs(item.hear_time, "HH:mm:ss")}
+                        className="w-full p-2"
+                        size="large"
+                        name="hear_time"
+                        placeholder="Hearing time"
+                        changeOnBlur={true}
+                        onChange={handleTimeChange2}
                       />
-                      <label className="text-md ml-1">Yes</label>
+                      {error2 && <p className="text-red-600">{error2}</p>}
                     </div>
                     <div>
                       <input
-                        defaultChecked={item.hear_lecs === "no"}
+                        defaultValue={item.speaker}
                         onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="hear_lecs"
-                        value="no"
+                        type="text"
+                        name="speaker"
+                        className="border rounded-lg w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                        placeholder="Name of speaker"
                         required
                       />
-                      <label className="text-md ml-1">No</label>
                     </div>
                   </div>
                 </div>
                 <div className="sm:w-1/2 space-y-2">
                   <label className="text-sm font-bold ">Reading SP Book</label>
-                  <div className="flex items-center gap-10">
+                  <div className="flex items-center gap-2">
                     <div>
-                      <input
-                        defaultChecked={item.read_books === "yes"}
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="read_books"
-                        value="yes"
-                        required
+                      <TimePicker
+                        defaultValue={dayjs(item.read_time, "HH:mm:ss")}
+                        className="w-full p-2"
+                        size="large"
+                        name="read_time"
+                        placeholder="Reading time"
+                        changeOnBlur={true}
+                        onChange={handleTimeChange1}
                       />
-                      <label className="text-md ml-1">Yes</label>
+                      {error1 && <p className="text-red-600">{error1}</p>}
                     </div>
                     <div>
                       <input
-                        defaultChecked={item.read_books === "no"}
+                        defaultValue={item.author}
                         onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="read_books"
-                        value="no"
+                        type="text"
+                        name="author"
+                        className="border rounded-lg w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                        placeholder="Author Name"
                         required
                       />
-                      <label className="text-md ml-1">No</label>
                     </div>
                   </div>
                 </div>
@@ -177,69 +215,81 @@ const EditUser = () => {
                   <label className="text-sm font-bold ">
                     Attending Chanting-Reading Sessions
                   </label>
-                  <div className="flex items-center gap-10">
-                    <div>
-                      <input
-                        defaultChecked={item.attend_session === "yes"}
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="attend_session"
-                        value="yes"
-                        required
-                      />
-                      <label className="text-md ml-1">Yes</label>
-                    </div>
-                    <div>
-                      <input
-                        defaultChecked={item.attend_session === "no"}
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="attend_session"
-                        value="no"
-                        required
-                      />
-                      <label className="text-md ml-1">No</label>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      name="attend_session"
+                      onClick={handleChange}
+                      value="Everyday"
+                      onBlur={(e) => handleInputBlur1(e.target.value)}
+                      className={
+                        isFocused === "Everyday"
+                          ? "cursor-pointer border rounded-lg sm:w-20 p-2 border-cyan-400"
+                          : "cursor-pointer border rounded-lg sm:w-20 p-2 border-gray-400 focus:border-2"
+                      }
+                      readOnly
+                    />
+                    <input
+                      name="attend_session"
+                      onClick={handleChange}
+                      value="More a day"
+                      onBlur={(e) => handleInputBlur1(e.target.value)}
+                      className={
+                        isFocused === "More than a day"
+                          ? "cursor-pointer border rounded-lg sm:w-full p-2 border-cyan-400"
+                          : "cursor-pointer border rounded-lg sm:w-full p-2 border-gray-400 focus:border-2"
+                      }
+                      readOnly
+                    />
+                    <input
+                      name="attend_session"
+                      onClick={handleChange}
+                      value="1 Day"
+                      onBlur={(e) => handleInputBlur1(e.target.value)}
+                      className={
+                        isFocused === "1 Day"
+                          ? "cursor-pointer border rounded-lg sm:w-20 p-2 border-cyan-400"
+                          : "cursor-pointer border rounded-lg sm:w-20 p-2 border-gray-400 focus:border-2"
+                      }
+                      readOnly
+                    />
                   </div>
                 </div>
                 <div className="sm:w-1/2 space-y-2">
                   <label className="text-sm font-bold ">
                     Attending Weekend GAME Class
                   </label>
-                  <div className="flex items-center gap-10">
-                    <div>
-                      <input
-                        defaultChecked={item.attend_game === "yes"}
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="attend_game"
-                        value="yes"
-                        required
-                      />
-                      <label className="text-md ml-1">Yes</label>
-                    </div>
-                    <div>
-                      <input
-                        defaultChecked={item.attend_game === "no"}
-                        onChange={handleChange}
-                        className=""
-                        type="radio"
-                        name="attend_game"
-                        value="no"
-                        required
-                      />
-                      <label className="text-md ml-1">No</label>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      onBlur={(e) => handleInputBlur2(e.target.value)}
+                      name="attend_game"
+                      onClick={handleChange}
+                      className={
+                        isFocused2 === "Yes"
+                          ? "cursor-pointer border rounded-lg sm:w-full p-2 border-cyan-400"
+                          : "cursor-pointer border rounded-lg sm:w-full p-2 border-gray-400 focus:border-2"
+                      }
+                      value="Yes"
+                      readOnly
+                    />
+                    <input
+                      onBlur={(e) => handleInputBlur2(e.target.value)}
+                      name="attend_game"
+                      onClick={handleChange}
+                      className={
+                        isFocused2 === "No"
+                          ? "cursor-pointer border rounded-lg sm:w-full p-2 border-cyan-400"
+                          : "cursor-pointer border rounded-lg sm:w-full p-2 border-gray-400 focus:border-2"
+                      }
+                      value="No"
+                      readOnly
+                    />
                   </div>
                 </div>
               </div>
               <div className="flex justify-evenly gap-5 flex-col sm:flex-row">
                 <div className="sm:w-1/2 space-y-2">
                   <label className="text-sm font-bold ">Getting Up</label>
-                  <div className="w-full flex flex-col gap-4 sm:flex-row">
+                  <div className="flex flex-col gap-4 sm:flex-row">
                     <input
                       defaultValue={item.up_time.split(/[ :]+/)[0]}
                       required
@@ -248,7 +298,7 @@ const EditUser = () => {
                       min="0"
                       max="11"
                       step="1"
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                       placeholder="Hour"
                       name="hrUp"
                     />
@@ -260,7 +310,7 @@ const EditUser = () => {
                       min="0"
                       max="59"
                       step="1"
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                       placeholder="Minute"
                       name="minUp"
                     />
@@ -269,7 +319,7 @@ const EditUser = () => {
                       required
                       name="typeUp"
                       onChange={handleChange}
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                     >
                       <option value="">Choose</option>
                       <option value="am">AM</option>
@@ -279,7 +329,7 @@ const EditUser = () => {
                 </div>
                 <div className="sm:w-1/2 space-y-2">
                   <label className="text-sm font-bold ">Going to Bed</label>
-                  <div className="w-full flex flex-col gap-4 sm:flex-row">
+                  <div className=" flex flex-col gap-4 sm:flex-row">
                     <input
                       defaultValue={item.bet_time.split(/[ :]+/)[0]}
                       required
@@ -288,7 +338,7 @@ const EditUser = () => {
                       min="0"
                       max="23"
                       step="1"
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                       placeholder="Hour"
                       name="hrbed"
                     />
@@ -300,7 +350,7 @@ const EditUser = () => {
                       max="59"
                       step="1"
                       type="number"
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                       placeholder="Minute"
                       name="minbed"
                     />
@@ -309,7 +359,7 @@ const EditUser = () => {
                       required
                       name="typebed"
                       onChange={handleChange}
-                      className="border w-24 p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
+                      className="border w-full p-2 border-gray-400 focus:outline-none focus:border-cyan-400"
                     >
                       <option value="">Choose</option>
                       <option value="am">AM</option>

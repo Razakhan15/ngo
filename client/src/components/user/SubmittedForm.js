@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import axios from "../../baseUrl/axios";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 

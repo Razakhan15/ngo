@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../baseUrl/axios";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../Header";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 const Panel = () => {
-  const nav = useNavigate()
+  const nav = useNavigate();
   const [userDetails, setUserDetails] = useState([]);
 
   useEffect(() => {
@@ -20,14 +21,20 @@ const Panel = () => {
       });
       setUserDetails(res.data.results);
     } catch (error) {
-      nav('/ngo/admin/login')
+      nav("/ngo/admin/login");
     }
   };
   return (
     <>
-      <Header name="admin"/>
+      <Header name="admin" />
       <div className="p-5 bg-gradient-to-r from-cyan-50 to-cyan-600 h-screen">
-        <div className="w-full lg:w-1/2 overflow-x-scroll  m-auto border-gray-200 border mt-14 shadow-2xl shadow-cyan-400 rounded-lg bg-white">
+      <Link to={'/write-notes'}>
+        <div className="w-fit m-auto flex items-center bg-gray-700 text-white p-3 gap-2 transition ease-in-out delay-100 hover:bg-gray-600 cursor-pointer">
+          <PencilSquareIcon className="h-5 w-5" />
+          <p>Note for User</p>{" "}
+        </div>
+      </Link>
+        <div className="w-full lg:w-1/2 overflow-x-scroll  m-auto border-gray-200 border mt-10 shadow-2xl shadow-cyan-400 rounded-lg bg-white">
           <table className="w-full">
             <tbody>
               <tr className="border-b bg-cyan-50">

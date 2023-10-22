@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../baseUrl/axios";
+import axios from "axios";
 
 const Login = () => {
   const nav = useNavigate();
   const initialValues = { username: "", password: "" };
   const [formValues, setFormValues] = useState(initialValues);
   const [formErrors, setFormErrors] = useState([]);
+  const [getNotes, setGetNotes] = useState([]);
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,9 +33,27 @@ const Login = () => {
     }
   };
 
+  const getData = async () => {
+    try {
+      const res = await axios.get("/getnotes");
+      setGetNotes(res.data.result);
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   return (
     <div className="p-5 bg-gradient-to-r from-cyan-50 to-cyan-600 h-screen">
-      <div className="w-fit m-auto border mt-14  shadow-2xl shadow-cyan-400 rounded-2xl">
+      {getNotes
+        ? getNotes?.map((item) => (
+            <div key={item.id} class="overflow-x-hidden">
+              <div class="py-12 animate-marquee whitespace-nowrap ">
+                <span class="mx-4 text-4xl">{item.note}</span>
+              </div>
+            </div>
+          ))
+        : null}
+      <div className="w-fit m-auto border shadow-2xl shadow-cyan-400 rounded-2xl">
         <form
           onSubmit={handleSubmit}
           className="p-5 space-y-5 bg-white rounded-2xl"
