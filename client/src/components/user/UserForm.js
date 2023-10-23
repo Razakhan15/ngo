@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../baseUrl/axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../Header";
 import { TimePicker } from "antd";

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../baseUrl/axios";
+import Header from "./Header";
 
 const Login = () => {
   const nav = useNavigate();
@@ -43,6 +44,8 @@ const Login = () => {
   };
 
   return (
+    <>
+    <Header/>
     <div className="p-5 bg-gradient-to-r from-cyan-50 to-cyan-600 h-screen">
       {getNotes
         ? getNotes?.map((item) => (
@@ -100,6 +103,7 @@ const Login = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../baseUrl/axios";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../Header";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";

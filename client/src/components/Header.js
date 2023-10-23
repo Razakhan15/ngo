@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ name }) => {
+  const [checkLogedin, setCheckLogedin] = useState(false);
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      setCheckLogedin(true);
+    }
+  }, []);
   const nav = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -15,14 +21,18 @@ const Header = ({ name }) => {
         <div className="text-white flex justify-between items-center ">
           <div className="flex gap-5">
             <img src="/icon.png" className="h-14" />
-            <button
-              onClick={handleLogout}
-              className="bg-cyan-600 p-2 font-bold rounded-md transition delay-100 hover:bg-cyan-100 hover:text-black"
-            >
-              Logout
-            </button>
+            {!checkLogedin && (
+              <button
+                onClick={handleLogout}
+                className="bg-cyan-600 p-2 font-bold rounded-md transition delay-100 hover:bg-cyan-100 hover:text-black"
+              >
+                Logout
+              </button>
+            )}
           </div>
-          <p className="uppercase font-serif text-2xl hidden lg:block ">International Society for Krishna Consciousness</p>
+          <p className="uppercase font-serif text-2xl hidden lg:block ">
+            International Society for Krishna Consciousness
+          </p>
           <div>
             <img src="/guru.png" alt="" className="h-14" />
           </div>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../baseUrl/axios";
 import { Link, useNavigate } from "react-router-dom";
+import Header from "../Header";
 
 const AdminRegister = () => {
   const nav = useNavigate();
@@ -34,6 +35,8 @@ const AdminRegister = () => {
   };
 
   return (
+    <>
+      <Header/>
     <div className="p-5 bg-gradient-to-r from-cyan-50 to-cyan-600 h-screen">
       <div className="w-fit m-auto border shadow-2xl shadow-cyan-400 rounded-2xl">
         <form
@@ -111,6 +114,7 @@ const AdminRegister = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
